@@ -74,7 +74,7 @@ add_action( 'admin_menu', 'jl_remove_staging_post_add_new' );
 
 function jl_remove_staging_post_add_new_edit_screen (){
 	global $pagenow;
-	if ( 'edit.php' == $pagenow && 'staging-post' == $_GET['post_type'] ){
+	if ( isset( $_GET['post_type'] ) && 'edit.php' == $pagenow && 'staging-post' == $_GET['post_type'] ){
 		echo '<style>.add-new-h2 { display: none; }</style>';
 	}
 }
