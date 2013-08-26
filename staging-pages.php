@@ -57,6 +57,30 @@ function jl_staging_pages_register_staging_post_types(){
 
 add_action( 'init', 'jl_staging_pages_register_staging_post_types' );
 
+/*
+** Hides the "Add New" from sidebar menu
+*/
+
+function jl_remove_staging_post_add_new(){
+	global $submenu;
+	unset( $submenu['edit.php?post_type=staging-post'][10] );
+}
+
+add_action( 'admin_menu', 'jl_remove_staging_post_add_new' );
+
+/*
+** Hides the "Add New" from edit screen
+*/
+
+function jl_remove_staging_post_add_new_edit_screen (){
+	global $pagenow;
+	if ( 'edit.php' == $pagenow && 'staging-post' == $_GET['post_type'] ){
+		echo '<style>.add-new-h2 { display: none; }</style>';
+	}
+}
+
+add_action( 'admin_head', 'jl_remove_staging_post_add_new_edit_screen' );
+
 
 /*
 ** Adds our context menu item to the row actions list
