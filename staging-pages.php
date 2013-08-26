@@ -11,6 +11,54 @@ Licence: GPL2
 
 
 /*
+** Register staging post types for Posts and Pages
+*/
+
+function jl_staging_pages_register_staging_post_types(){
+
+	$post_labels = array(
+		'name' => 'Staging Posts',
+		'singular_name' => 'Staged Post',
+		'add_new' => 'Add New',
+		'add_new_item' => 'Add New Staged Post',
+		'edit_item' => 'Edit Staged Post',
+		'new_item' => 'New Staged Post',
+		'all_items' => 'All Staged Posts',
+		'view_item' => 'View Staged Post',
+		'search_item' => 'Search Staged Posts',
+		'not_found' => 'No staged posts found.',
+		'not_found_in_trash' => 'No staged posts found in Trash.',
+		'parent_item_colon' => NULL,
+		'menu_name' => 'Staged Posts'
+	);
+
+	$post_args = array(
+		'labels' => $post_labels,
+		'description' => 'A staging place for posts',
+		'public' => false,
+		'exclude_from_search' => true,
+		'publicly_queryable' => false,
+		'show_ui' => true,
+		'show_in_nav_menus' => false,
+		'show_in_menu' => true,
+		'show_in_admin_bar' => false,
+		'query_var' => true,
+		'rewrite' => array( 'slug' => 'staging-post'),
+		'capability_type' => 'post',
+		'has_archive' => false,
+		'hierarchical' => false,
+		'menu_position' => 5,
+		'supports' => array( 'title', 'editor', 'custom-fields' )
+	);
+
+	register_post_type( 'staging-post', $post_args );
+
+}
+
+add_action( 'init', 'jl_staging_pages_register_staging_post_types' );
+
+
+/*
 ** Adds our context menu item to the row actions list
 */
 
@@ -34,8 +82,13 @@ function jl_staging_pages_check_for_mirror(){
 			$jl_mirror_post_id = $_GET['jl-mirror-post-id'];
 		}
 		$jl_mirror_post_type = esc_html( $_GET['jl-mirror-post-type'] );
-		var_dump($jl_mirror_post_id);
-		var_dump($jl_mirror_post_type);
+		
+		// Check to see if this mirrored post type exists
+		if ( post_type_exists( 'staged-'.$jl_mirror_post_type ) ){
+			// The staging post type has already been created, proceed with staging content
+		} else {
+			echo '<script>alert("Sorry but there is no staging post type for this item."); window.location = "'.get_admin_url().'"; </script>';
+		}
 	}
 }
 
