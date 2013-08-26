@@ -53,6 +53,43 @@ function jl_staging_pages_register_staging_post_types(){
 
 	register_post_type( 'staging-post', $post_args );
 
+	$page_labels = array(
+		'name' => 'Staging Pagess',
+		'singular_name' => 'Staged Page',
+		'add_new' => 'Add New',
+		'add_new_item' => 'Add New Staged Page',
+		'edit_item' => 'Edit Staged Page',
+		'new_item' => 'New Staged Page',
+		'all_items' => 'All Staged Pages',
+		'view_item' => 'View Staged Page',
+		'search_item' => 'Search Staged Pages',
+		'not_found' => 'No staged pages found.',
+		'not_found_in_trash' => 'No staged pages found in Trash.',
+		'parent_item_colon' => NULL,
+		'menu_name' => 'Staged Pages'
+	);
+
+	$page_args = array(
+		'labels' => $page_labels,
+		'description' => 'A staging place for pages',
+		'public' => false,
+		'exclude_from_search' => true,
+		'publicly_queryable' => false,
+		'show_ui' => true,
+		'show_in_nav_menus' => false,
+		'show_in_menu' => true,
+		'show_in_admin_bar' => false,
+		'query_var' => true,
+		'rewrite' => array( 'slug' => 'staging-page'),
+		'capability_type' => 'page',
+		'has_archive' => false,
+		'hierarchical' => false,
+		'menu_position' => 20,
+		'supports' => array( 'title', 'editor', 'custom-fields', 'page-attributes' )
+	);
+
+	register_post_type( 'staging-page', $page_args );
+
 }
 
 add_action( 'init', 'jl_staging_pages_register_staging_post_types' );
