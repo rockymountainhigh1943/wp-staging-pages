@@ -130,9 +130,32 @@ add_action( 'admin_head', 'jl_remove_staging_post_page_add_new_edit_screen' );
 */
 
 function jl_staging_pages_add_row_action( $actions, $page_object ){
-	$myNonce = wp_create_nonce('wp-staging-nonce');
-    $actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged').'</a>';
-    return $actions;
+	$jl_the_post_type = get_post_type();
+	if ( "post" == $jl_the_post_type || "page" == $jl_the_post_type ){
+
+		//var_dump($page_object);
+
+		$jlCheckForStagedArgs = array(
+			'meta_key' => 'jl-staged-post-original',
+			'meta_value' => $page_object->ID,
+			'post_type' => 'staging-' . $jl_the_post_type,
+			'posts_per_page' => 1
+		);
+
+		$jlCheckForStagedQuery = new WP_Query( $jlCheckForStagedArgs );
+
+		if ( $jlCheckForStagedQuery->have_posts() ){
+			while ( $jlCheckForStagedQuery->have_posts() ){
+				$jlCheckForStagedQuery->the_post();
+	    		$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged').'</a>';
+		    }
+		} else {
+			$myNonce = wp_create_nonce('wp-staging-nonce');
+	    	$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged').'</a>';
+		}
+
+	}
+	return $actions;
 }
 
 add_filter( 'page_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
@@ -155,16 +178,30 @@ function jl_staging_pages_check_for_mirror(){
 			wp_die( $jlDieMessage ); 
 		} else {
 
-			if ( is_numeric( $_GET['jl-mirror-post-id'] ) ){
-				$jl_mirror_post_id = $_GET['jl-mirror-post-id'];
-			} else {
-				wp_die( $jlDieMessage ); 
-			}
-
 			if ( ('post' == $_GET['jl-mirror-post-type']) || ('page' == $_GET['jl-mirror-post-type']) ){
 				$jl_mirror_post_type = $_GET['jl-mirror-post-type'];
 			} else {
 				wp_die( $jlDieMessage );
+			}
+
+			if ( is_numeric( $_GET['jl-mirror-post-id'] ) ){
+				$jl_mirror_post_id = $_GET['jl-mirror-post-id'];
+
+				$jlCheckForStagedArgs = array(
+					'meta_key' => 'jl-staged-post-original',
+					'meta_value' => $jl_mirror_post_id,
+					'post_type' => 'staging-' . $jl_mirror_post_type,
+					'posts_per_page' => 1
+				);
+
+				$jlCheckForStagedQuery = new WP_Query( $jlCheckForStagedArgs );
+
+				if ( $jlCheckForStagedQuery->have_posts() ){
+					return;
+				}
+
+			} else {
+				wp_die( $jlDieMessage ); 
 			}
 			
 			// Check to see if this mirrored post type exists
@@ -185,6 +222,8 @@ function jl_staging_pages_check_for_mirror(){
 						$stagedTitle = get_the_title();
 						$stagedContent =  get_the_content();
 
+						//var_dump($jlNewPostQuery);
+
 						if ( ! empty( $stagedTitle) && ! empty( $stagedContent ) ){
 
 							$stagedNewItem = array(
@@ -197,7 +236,8 @@ function jl_staging_pages_check_for_mirror(){
 							$createStagedItem = wp_insert_post( $stagedNewItem );
 
 							if ( is_numeric($createStagedItem) ){
-								echo 'Post created!! The ID is: ' . $createStagedItem;
+								update_post_meta( $createStagedItem, 'jl-staged-' . $jl_mirror_post_type . '-original', $jl_mirror_post_id );
+								//wp_safe_redirect( get_admin_url() . '/' )
 							}
 
 						}
