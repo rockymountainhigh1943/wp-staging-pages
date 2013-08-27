@@ -112,7 +112,10 @@ add_action( 'admin_menu', 'jl_remove_staging_post_page_add_new' );
 
 function jl_remove_staging_post_page_add_new_edit_screen (){
 	global $pagenow;
+	$jl_the_post_type = get_post_type();
 	if ( isset( $_GET['post_type'] ) && 'edit.php' == $pagenow && ('staging-post' == $_GET['post_type'] || 'staging-page' == $_GET['post_type'] ) ){
+		echo '<style>.add-new-h2 { display: none; }</style>';
+	} elseif ( 'post.php' == $pagenow && ('staging-post' == $jl_the_post_type || 'staging-page' == $jl_the_post_type ) ) {
 		echo '<style>.add-new-h2 { display: none; }</style>';
 	}
 }
@@ -127,7 +130,8 @@ add_action( 'admin_head', 'jl_remove_staging_post_page_add_new_edit_screen' );
 */
 
 function jl_staging_pages_add_row_action( $actions, $page_object ){
-    $actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'" class="jl-not-staged">'.__('Not Staged').'</a>';
+	$myNonce = wp_create_nonce('wp-staging-nonce');
+    $actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged').'</a>';
     return $actions;
 }
 
@@ -144,17 +148,69 @@ add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
 
 function jl_staging_pages_check_for_mirror(){
 	if( ! empty( $_GET['jl-mirror-post-id'] ) && ! empty( $_GET['jl-mirror-post-type'] ) ){
-		if ( is_numeric( $_GET['jl-mirror-post-id'] ) ){
-			$jl_mirror_post_id = $_GET['jl-mirror-post-id'];
-		}
-		$jl_mirror_post_type = esc_html( $_GET['jl-mirror-post-type'] );
-		
-		// Check to see if this mirrored post type exists
-		if ( post_type_exists( 'staged-'.$jl_mirror_post_type ) ){
-			// The staging post type has already been created, proceed with staging content
+		$jlDieMessage = '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>';
+		$myNonce = $_REQUEST['_wpnonce'];
+
+		if ( ! wp_verify_nonce( $myNonce, 'wp-staging-nonce' ) ){
+			wp_die( $jlDieMessage ); 
 		} else {
-			echo '<script>alert("Sorry but there is no staging post type for this item."); window.location = "'.get_admin_url().'"; </script>';
+
+			if ( is_numeric( $_GET['jl-mirror-post-id'] ) ){
+				$jl_mirror_post_id = $_GET['jl-mirror-post-id'];
+			} else {
+				wp_die( $jlDieMessage ); 
+			}
+
+			if ( ('post' == $_GET['jl-mirror-post-type']) || ('page' == $_GET['jl-mirror-post-type']) ){
+				$jl_mirror_post_type = $_GET['jl-mirror-post-type'];
+			} else {
+				wp_die( $jlDieMessage );
+			}
+			
+			// Check to see if this mirrored post type exists
+			if ( post_type_exists( 'staging-'.$jl_mirror_post_type ) ){
+
+				$jlNewPostArgs = array(
+					'page_id' => $jl_mirror_post_id,
+					'post_type' => $jl_mirror_post_type,
+					'posts_per_page' => 1
+				);
+
+				$jlNewPostQuery = new WP_Query( $jlNewPostArgs );
+
+				if ( $jlNewPostQuery->have_posts() ){
+					while( $jlNewPostQuery->have_posts() ){
+						$jlNewPostQuery->the_post();
+
+						$stagedTitle = get_the_title();
+						$stagedContent =  get_the_content();
+
+						if ( ! empty( $stagedTitle) && ! empty( $stagedContent ) ){
+
+							$stagedNewItem = array(
+								'post_title'    => $stagedTitle,
+								'post_content'  => $stagedContent,
+								'post_status'   => 'publish',
+								'post_type'   => 'staging-'.$jl_mirror_post_type
+							);
+
+							$createStagedItem = wp_insert_post( $stagedNewItem );
+
+							if ( is_numeric($createStagedItem) ){
+								echo 'Post created!! The ID is: ' . $createStagedItem;
+							}
+
+						}
+
+					}
+				}
+
+			} else {
+				echo '<script>alert("Sorry but there is no staging post type for this item."); window.location = "'.get_admin_url().'";</script>';
+			}
+
 		}
+
 	}
 }
 
