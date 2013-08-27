@@ -54,7 +54,7 @@ function jl_staging_pages_register_staging_post_types(){
 	register_post_type( 'staging-post', $post_args );
 
 	$page_labels = array(
-		'name' => 'Staging Pagess',
+		'name' => 'Staging Pages',
 		'singular_name' => 'Staged Page',
 		'add_new' => 'Add New',
 		'add_new_item' => 'Add New Staged Page',
@@ -98,25 +98,28 @@ add_action( 'init', 'jl_staging_pages_register_staging_post_types' );
 ** Hides the "Add New" from sidebar menu
 */
 
-function jl_remove_staging_post_add_new(){
+function jl_remove_staging_post_page_add_new(){
 	global $submenu;
 	unset( $submenu['edit.php?post_type=staging-post'][10] );
+	unset( $submenu['edit.php?post_type=staging-page'][10] );
 }
 
-add_action( 'admin_menu', 'jl_remove_staging_post_add_new' );
+add_action( 'admin_menu', 'jl_remove_staging_post_page_add_new' );
 
 /*
 ** Hides the "Add New" from edit screen
 */
 
-function jl_remove_staging_post_add_new_edit_screen (){
+function jl_remove_staging_post_page_add_new_edit_screen (){
 	global $pagenow;
-	if ( isset( $_GET['post_type'] ) && 'edit.php' == $pagenow && 'staging-post' == $_GET['post_type'] ){
+	if ( isset( $_GET['post_type'] ) && 'edit.php' == $pagenow && ('staging-post' == $_GET['post_type'] || 'staging-page' == $_GET['post_type'] ) ){
 		echo '<style>.add-new-h2 { display: none; }</style>';
 	}
 }
 
-add_action( 'admin_head', 'jl_remove_staging_post_add_new_edit_screen' );
+add_action( 'admin_head', 'jl_remove_staging_post_page_add_new_edit_screen' );
+
+
 
 
 /*
@@ -130,6 +133,8 @@ function jl_staging_pages_add_row_action( $actions, $page_object ){
 
 add_filter( 'page_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
 add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
+
+
 
 
 
