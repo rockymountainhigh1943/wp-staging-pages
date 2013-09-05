@@ -166,7 +166,7 @@ add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
 
 
 /*
-** Check if post has a staged post type already registered
+** Check if post has a staged post type already registered, if so we create our staged item
 */
 
 function jl_staging_pages_check_for_mirror(){
@@ -256,5 +256,34 @@ function jl_staging_pages_check_for_mirror(){
 }
 
 add_action( 'admin_init', 'jl_staging_pages_check_for_mirror' );
+
+
+
+
+function jl_staging_pages_add_deploy_button (){ ?>
+
+<div class="misc-pub-section curtime">
+	<input style="float: right;" type="submit" value="Deploy" accesskey="d" id="deploy" class="button button-primary button-large" name="deploy">
+	<strong>DEPLOY</strong><br />
+	Will overwrite the original
+	<div class="clear"></div>
+</div>
+
+<?php }
+
+add_action( 'post_submitbox_misc_actions', 'jl_staging_pages_add_deploy_button' );
+
+
+
+
+function jl_staging_pages_add_admin_css (){
+	global $pagenow;
+	$jl_the_post_type = get_post_type();
+	if ( isset( 'post.php' == $pagenow && ( 'staging_page' == $jl_the_post_type || 'staging_post' == $jl_the_post_type ) ) ){
+		
+	}
+}
+
+add_action( 'admin_enqueue_scripts', 'jl_staging_pages_add_admin_css' );
 
 ?>
