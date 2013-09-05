@@ -219,12 +219,12 @@ function jl_staging_pages_check_for_mirror(){
 					while( $jlNewPostQuery->have_posts() ){
 						$jlNewPostQuery->the_post();
 
-						$stagedTitle = get_the_title();
-						$stagedContent =  get_the_content();
+						$stagedTitle = $jlNewPostQuery->posts[0]->post_title;
+						$stagedContent =  $jlNewPostQuery->posts[0]->post_content;
 
 						//var_dump($jlNewPostQuery);
 
-						if ( ! empty( $stagedTitle) && ! empty( $stagedContent ) ){
+						if ( ! empty( $stagedTitle ) && ! empty( $stagedContent ) ){
 
 							$stagedNewItem = array(
 								'post_title'    => $stagedTitle,
@@ -237,8 +237,9 @@ function jl_staging_pages_check_for_mirror(){
 
 							if ( is_numeric($createStagedItem) ){
 								update_post_meta( $createStagedItem, 'jl-staged-' . $jl_mirror_post_type . '-original', $jl_mirror_post_id );
-								//wp_safe_redirect( get_admin_url() . '/' )
+								wp_safe_redirect( get_admin_url() . '/post.php?post=' . $createStagedItem . '&action=edit' );
 							}
+
 
 						}
 
