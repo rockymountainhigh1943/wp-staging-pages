@@ -367,6 +367,12 @@ function jl_staging_pages_add_admin_css (){
 			'1.0.0'
 		);
 		wp_enqueue_style( 'jl-wp-staging-pages-stylesheet' );
+		wp_enqueue_script(
+			'jl-wp-staging-pages-js',
+			plugins_url( 'wp-staging-pages/staging-pages.js' ),
+			array('jquery'),
+			'1.0.0'
+		);
 	}
 }
 
