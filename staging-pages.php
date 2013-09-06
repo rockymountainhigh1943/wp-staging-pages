@@ -94,6 +94,10 @@ function jl_staging_pages_register_staging_post_types(){
 
 add_action( 'init', 'jl_staging_pages_register_staging_post_types' );
 
+
+
+
+
 /*
 ** Hides the "Add New" from sidebar menu
 */
@@ -121,7 +125,7 @@ function jl_staging_pages_add_row_action( $actions, $page_object ){
 		//var_dump($page_object);
 
 		$jlCheckForStagedArgs = array(
-			'meta_key' => 'jl-staged-post-original',
+			'meta_key' => 'jl-staged-'.$jl_the_post_type.'-original',
 			'meta_value' => $page_object->ID,
 			'post_type' => 'staging-' . $jl_the_post_type,
 			'posts_per_page' => 1
@@ -245,21 +249,112 @@ add_action( 'admin_init', 'jl_staging_pages_check_for_mirror' );
 
 
 
-function jl_staging_pages_add_deploy_button (){ ?>
+
+/*
+** Add our deploy button to the Publish metabox
+*/
+
+function jl_staging_pages_add_deploy_button (){ 
+	global $pagenow;
+	$jl_the_post_type = get_post_type();
+	if ( ( 'post.php' == $pagenow ) && ( 'staging-page' == $jl_the_post_type || 'staging-post' == $jl_the_post_type ) ){
+		if ( isset($_GET['post']) && is_numeric($_GET['post']) ){
+			$itemID = $_GET['post'];
+			$deployNonce = wp_create_nonce('jl-staging-pages-deploy-nonce');
+		}
+?>
 
 <div class="misc-pub-section curtime">
-	<input style="float: right;" type="submit" value="Deploy" accesskey="d" id="deploy" class="button button-primary button-large" name="deploy">
+	<input style="float: right;" type="button" value="Deploy" onclick="window.location='<?php echo get_admin_url(); ?>options.php?deploy-item-id=<?php echo $itemID; ?>&type=<?php echo $jl_the_post_type ?>&_wpnonce=<?php echo $deployNonce; ?>'" accesskey="d" id="deploy" class="button button-primary button-large" name="deploy">
 	<strong>DEPLOY</strong><br />
 	Will overwrite the original
 	<div class="clear"></div>
 </div>
 
-<?php }
+<?php } 
+	}
 
 add_action( 'post_submitbox_misc_actions', 'jl_staging_pages_add_deploy_button' );
 
 
 
+
+
+/*
+** The user has deployed the staged item, lets process it
+*/
+
+function jl_staging_pages_deploy_item (){
+	global $pagenow;
+	if ( 'options.php' == $pagenow && ! empty( $_GET['deploy-item-id'] ) && ! empty( $_REQUEST['_wpnonce'] ) && ! empty( $_GET['type'] ) ) {
+		$jlDieMessage = '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>';
+		$deployID = $_GET['deploy-item-id'];
+		$deployGetNonce = $_REQUEST['_wpnonce'];
+		$deployType = ( $_GET['type'] == 'staging-post' ? 'post' : 'page' );
+
+		if ( ! wp_verify_nonce( $deployGetNonce, 'jl-staging-pages-deploy-nonce' ) ){
+			wp_die( $jlDieMessage );
+		} else {
+			if ( is_numeric($deployID) ){
+				$stagingParentID = get_post_meta( $deployID, 'jl-staged-'.$deployType.'-original', true );
+
+				if ( ! is_numeric( $stagingParentID ) ) {
+					wp_die( $jlDieMessage );
+				} else {
+					$jlUpdatePostArgs = array(
+						'page_id' => $deployID,
+						'post_type' => $_GET['type'],
+						'posts_per_page' => 1
+					);
+
+					$jlUpdatePostQuery = new WP_Query( $jlUpdatePostArgs );
+
+					if ( $jlUpdatePostQuery->have_posts() ){
+						while( $jlUpdatePostQuery->have_posts() ){
+							$jlUpdatePostQuery->the_post();
+
+							$stagedTitle = $jlUpdatePostQuery->posts[0]->post_title;
+							$stagedContent =  $jlUpdatePostQuery->posts[0]->post_content;
+
+							if ( ! empty( $stagedTitle ) && ! empty( $stagedContent ) ){
+
+								$stagedDeployItem = array(
+									'ID' => $stagingParentID,
+									'post_title'    => $stagedTitle,
+									'post_content'  => $stagedContent
+								);
+
+								$createStagedItem = wp_update_post( $stagedDeployItem );
+
+								if ( is_numeric($createStagedItem) ){
+
+									wp_delete_post( $deployID, true );
+
+									wp_safe_redirect( get_admin_url() . '/post.php?post=' . $stagingParentID . '&action=edit' );
+								}
+
+
+							}
+
+						}
+					}
+
+				}
+
+			}
+		}
+	}
+}
+
+add_action( 'admin_init', 'jl_staging_pages_deploy_item' );
+
+
+
+
+
+/*
+** Adds our css styles to the staging-pages admin pages
+*/
 
 function jl_staging_pages_add_admin_css (){
 	global $pagenow;

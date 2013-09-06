@@ -21,6 +21,15 @@
 	background-image: -ms-linear-gradient(to bottom, #37D54B, #219A2B);
 }
 
+#deploy:active {
+	background-color: #219A2B;
+	background-image: linear-gradient(to bottom, #219A2B, #37D54B);
+	background-image: -o-linear-gradient(to bottom, #219A2B, #37D54B);
+	background-image: -moz-linear-gradient(to bottom, #219A2B, #37D54B);
+	background-image: -webkit-linear-gradient(to bottom, #219A2B, #37D54B);
+	background-image: -ms-linear-gradient(to bottom, #219A2B, #37D54B);
+}
+
 .add-new-h2 {
 	display: none;
 }
