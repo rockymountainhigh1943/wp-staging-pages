@@ -1,23 +1,26 @@
-.button-primary-deploy {
+#deploy {
 	background-color: #2AC53C;
-	background-image: linear-gradient(to bottom, #2AC53C, #219A2B);
 	background-image: linear-gradient(to bottom, #2AC53C, #219A2B);
 	background-image: -o-linear-gradient(to bottom, #2AC53C, #219A2B);
 	background-image: -moz-linear-gradient(to bottom, #2AC53C, #219A2B);
 	background-image: -webkit-linear-gradient(to bottom, #2AC53C, #219A2B);
 	background-image: -ms-linear-gradient(to bottom, #2AC53C, #219A2B);
-
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0.47, #219A2B),
-		color-stop(0.74, #219A2B),
-		color-stop(0.87, #2AC53C)
-	);
 	border-color: #2E9A21 #329A21 #328E1E;
 	box-shadow: 0 1px 0 rgba(120, 200, 230, 0.5) inset;
 	color: #FFFFFF;
 	text-decoration: none;
 	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+#deploy:hover {
+	background-color: #37D54B;
+	background-image: linear-gradient(to bottom, #37D54B, #219A2B);
+	background-image: -o-linear-gradient(to bottom, #37D54B, #219A2B);
+	background-image: -moz-linear-gradient(to bottom, #37D54B, #219A2B);
+	background-image: -webkit-linear-gradient(to bottom, #37D54B, #219A2B);
+	background-image: -ms-linear-gradient(to bottom, #37D54B, #219A2B);
+}
+
+.add-new-h2 {
+	display: none;
 }

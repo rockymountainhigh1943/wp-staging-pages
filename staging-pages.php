@@ -106,21 +106,6 @@ function jl_remove_staging_post_page_add_new(){
 
 add_action( 'admin_menu', 'jl_remove_staging_post_page_add_new' );
 
-/*
-** Hides the "Add New" from edit screen
-*/
-
-function jl_remove_staging_post_page_add_new_edit_screen (){
-	global $pagenow;
-	$jl_the_post_type = get_post_type();
-	if ( isset( $_GET['post_type'] ) && 'edit.php' == $pagenow && ('staging-post' == $_GET['post_type'] || 'staging-page' == $_GET['post_type'] ) ){
-		echo '<style>.add-new-h2 { display: none; }</style>';
-	} elseif ( 'post.php' == $pagenow && ('staging-post' == $jl_the_post_type || 'staging-page' == $jl_the_post_type ) ) {
-		echo '<style>.add-new-h2 { display: none; }</style>';
-	}
-}
-
-add_action( 'admin_head', 'jl_remove_staging_post_page_add_new_edit_screen' );
 
 
 
@@ -279,8 +264,14 @@ add_action( 'post_submitbox_misc_actions', 'jl_staging_pages_add_deploy_button' 
 function jl_staging_pages_add_admin_css (){
 	global $pagenow;
 	$jl_the_post_type = get_post_type();
-	if ( isset( 'post.php' == $pagenow && ( 'staging_page' == $jl_the_post_type || 'staging_post' == $jl_the_post_type ) ) ){
-		
+	if ( ( 'post.php' == $pagenow || 'edit.php' == $pagenow ) && ( 'staging-page' == $jl_the_post_type || 'staging-post' == $jl_the_post_type ) ){
+		wp_register_style(
+			'jl-wp-staging-pages-stylesheet',
+			plugins_url( 'wp-staging-pages/staging-pages.css' ),
+			false,
+			'1.0.0'
+		);
+		wp_enqueue_style( 'jl-wp-staging-pages-stylesheet' );
 	}
 }
 
