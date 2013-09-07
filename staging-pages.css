@@ -31,5 +31,5 @@
 }
 
 .add-new-h2 {
-	display: none;
+	display: none !important;
 }

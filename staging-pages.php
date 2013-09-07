@@ -382,6 +382,11 @@ add_action( 'admin_init', 'jl_staging_pages_deploy_item' );
 function jl_staging_pages_add_admin_css (){
 	global $pagenow;
 	$jl_the_post_type = get_post_type();
+	if ( ! $jl_the_post_type ){
+		if ( isset( $_GET['post_type'] ) ){
+			$jl_the_post_type = esc_html( $_GET['post_type'] );
+		}
+	}
 	if ( ( 'post.php' == $pagenow || 'edit.php' == $pagenow ) && ( 'staging-page' == $jl_the_post_type || 'staging-post' == $jl_the_post_type ) ){
 		wp_register_style(
 			'jl-wp-staging-pages-stylesheet',
