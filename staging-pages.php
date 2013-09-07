@@ -151,6 +151,27 @@ add_filter( 'page_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
 add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
 
 
+	
+
+ 
+/*
+** Adds our context menu item to the row actions list for staging pages
+*/
+
+function jl_staging_pages_add_row_action_deploy( $actions, $page_object ){
+	global $pagenow;
+	$jl_the_post_type = get_post_type();
+	if ( ( "edit.php" == $pagenow ) && ( "staging-post" == $jl_the_post_type || "staging-page" == $jl_the_post_type ) ){
+		$myNonce = wp_create_nonce('jl-staging-pages-deploy-nonce');
+		$actions['deploy_object'] = '<a href="'.get_admin_url().'options.php?deploy-item-id='.$page_object->ID.'&type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Deploy').'</a>';
+	}
+	return $actions;
+}
+
+add_filter( 'page_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2, 100 );
+add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2, 100 );
+
+
 
 
 
@@ -226,7 +247,7 @@ function jl_staging_pages_check_for_mirror(){
 
 							if ( is_numeric($createStagedItem) ){
 								update_post_meta( $createStagedItem, 'jl-staged-' . $jl_mirror_post_type . '-original', $jl_mirror_post_id );
-								wp_safe_redirect( get_admin_url() . '/post.php?post=' . $createStagedItem . '&action=edit' );
+								wp_safe_redirect( get_admin_url() . 'post.php?post=' . $createStagedItem . '&action=edit' );
 							}
 
 
@@ -257,7 +278,7 @@ add_action( 'admin_init', 'jl_staging_pages_check_for_mirror' );
 function jl_staging_pages_add_deploy_button (){ 
 	global $pagenow;
 	$jl_the_post_type = get_post_type();
-	if ( ( 'post.php' == $pagenow ) && ( 'staging-page' == $jl_the_post_type || 'staging-post' == $jl_the_post_type ) ){
+	if ( ( 'post.php' == $pagenow ) && ( 'staging-page' == $jl_the_post_type || 'staging-post' == $jl_the_post_type ) && ( isset($_GET['message']) ) ){
 		if ( isset($_GET['post']) && is_numeric($_GET['post']) ){
 			$itemID = $_GET['post'];
 			$deployNonce = wp_create_nonce('jl-staging-pages-deploy-nonce');
@@ -271,8 +292,10 @@ function jl_staging_pages_add_deploy_button (){
 	<div class="clear"></div>
 </div>
 
-<?php } 
+<?php } else {
+		return;
 	}
+}
 
 add_action( 'post_submitbox_misc_actions', 'jl_staging_pages_add_deploy_button' );
 
@@ -286,7 +309,7 @@ add_action( 'post_submitbox_misc_actions', 'jl_staging_pages_add_deploy_button' 
 
 function jl_staging_pages_deploy_item (){
 	global $pagenow;
-	if ( 'options.php' == $pagenow && ! empty( $_GET['deploy-item-id'] ) && ! empty( $_REQUEST['_wpnonce'] ) && ! empty( $_GET['type'] ) ) {
+	if ( ( 'options.php' == $pagenow || 'edit.php' == $pagenow ) && ! empty( $_GET['deploy-item-id'] ) && ! empty( $_REQUEST['_wpnonce'] ) && ! empty( $_GET['type'] ) ) {
 		$jlDieMessage = '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>';
 		$deployID = $_GET['deploy-item-id'];
 		$deployGetNonce = $_REQUEST['_wpnonce'];
@@ -330,7 +353,7 @@ function jl_staging_pages_deploy_item (){
 
 									wp_delete_post( $deployID, true );
 
-									wp_safe_redirect( get_admin_url() . '/post.php?post=' . $stagingParentID . '&action=edit' );
+									wp_safe_redirect( get_admin_url() . 'post.php?post=' . $stagingParentID . '&action=edit' );
 								}
 
 
