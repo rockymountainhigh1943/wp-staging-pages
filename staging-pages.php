@@ -14,7 +14,7 @@ Licence: GPL2
 ** Register staging post types for Posts and Pages
 */
 
-function jl_staging_pages_register_staging_post_types(){
+function jl_staging_pages_register_staging_post_types () {
 
 	$post_labels = array(
 		'name' => 'Staging Posts',
@@ -118,7 +118,7 @@ add_action( 'admin_menu', 'jl_remove_staging_post_page_add_new' );
 ** Adds our context menu item to the row actions list
 */
 
-function jl_staging_pages_add_row_action( $actions, $page_object ){
+function jl_staging_pages_add_row_action ( $actions, $page_object ) {
 	$jl_the_post_type = get_post_type();
 	if ( "post" == $jl_the_post_type || "page" == $jl_the_post_type ){
 
@@ -162,7 +162,7 @@ add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
 ** Adds our context menu item to the row actions list for staging pages
 */
 
-function jl_staging_pages_add_row_action_deploy( $actions, $page_object ){
+function jl_staging_pages_add_row_action_deploy ( $actions, $page_object ) {
 	global $pagenow;
 	$jl_the_post_type = get_post_type();
 
@@ -184,7 +184,7 @@ add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2
 ** Check if post has a staged post type already registered, if so we create our staged item
 */
 
-function jl_staging_pages_check_for_mirror(){
+function jl_staging_pages_check_for_mirror () {
 	if( ! empty( $_GET['jl-mirror-post-id'] ) && ! empty( $_GET['jl-mirror-post-type'] ) ){
 		$jlDieMessage = '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>';
 		$myNonce = $_REQUEST['_wpnonce'];
@@ -237,8 +237,6 @@ function jl_staging_pages_check_for_mirror(){
 						$stagedTitle = $jlNewPostQuery->posts[0]->post_title;
 						$stagedContent =  $jlNewPostQuery->posts[0]->post_content;
 
-						//var_dump($jlNewPostQuery);
-
 						if ( ! empty( $stagedTitle ) && ! empty( $stagedContent ) ){
 
 							$stagedNewItem = array(
@@ -280,7 +278,7 @@ add_action( 'admin_init', 'jl_staging_pages_check_for_mirror' );
 ** Add our deploy button to the Publish metabox
 */
 
-function jl_staging_pages_add_deploy_button (){ 
+function jl_staging_pages_add_deploy_button () { 
 	global $pagenow;
 	$jl_the_post_type = get_post_type();
 	if ( ( 'post.php' == $pagenow ) && ( 'staging-page' == $jl_the_post_type || 'staging-post' == $jl_the_post_type ) && ( isset($_GET['message']) ) ){
@@ -312,7 +310,7 @@ add_action( 'post_submitbox_misc_actions', 'jl_staging_pages_add_deploy_button' 
 ** The user has deployed the staged item, lets process it
 */
 
-function jl_staging_pages_deploy_item (){
+function jl_staging_pages_deploy_item () {
 	global $pagenow;
 	if ( ( 'options.php' == $pagenow || 'edit.php' == $pagenow ) && ! empty( $_GET['deploy-item-id'] ) && ! empty( $_REQUEST['_wpnonce'] ) && ! empty( $_GET['type'] ) ) {
 		$jlDieMessage = '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>';
@@ -384,7 +382,7 @@ add_action( 'admin_init', 'jl_staging_pages_deploy_item' );
 ** Adds our css styles to the staging-pages admin pages
 */
 
-function jl_staging_pages_add_admin_css (){
+function jl_staging_pages_add_admin_css () {
 	global $pagenow;
 	$jl_the_post_type = get_post_type();
 	if ( ! $jl_the_post_type ){
@@ -410,5 +408,111 @@ function jl_staging_pages_add_admin_css (){
 }
 
 add_action( 'admin_enqueue_scripts', 'jl_staging_pages_add_admin_css' );
+
+
+
+
+
+/*
+** Add a meta_box to each staging item, allowing the user to choose audience
+*/
+
+function jl_staging_pages_add_user_meta_box () {
+
+	$editScreens = array( 'staging-page', 'staging-post' );
+
+	foreach ( $editScreens as $es ){
+
+		add_meta_box(
+			'jl_staging_pages_user_box',
+			__('Viewers / Editors'),
+			'jl_staging_pages_user_box_render',
+			$es,
+			'side'
+		);
+
+	}
+
+}
+
+add_action( 'add_meta_boxes', 'jl_staging_pages_add_user_meta_box' );
+
+function jl_staging_pages_user_box_render ( $post ) {
+	$current_user = wp_get_current_user();
+	wp_nonce_field( 'jl_staging_pages_user_box_render', 'jl_staging_pages_user_box_render_nonce' );
+
+	if ( get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true ) ) {
+		$jlStagingGetSavedUsers = get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true );
+	}
+	
+	$jlGetAllUsers = new WP_User_Query( array( 'exclude' => $current_user->ID ) );
+	$jlAuthors = $jlGetAllUsers->get_results();
+	
+	foreach ( $jlAuthors as $jlAuthor ){
+
+		if ( isset($jlStagingGetSavedUsers) ){
+			$jlUserIsInArray = in_array( $jlAuthor->ID, $jlStagingGetSavedUsers );
+			if ( $jlUserIsInArray ){
+				echo '<input class="jl-staging-checkbox" type="checkbox" id="staging-pages-user-'.$jlAuthor->ID.'" name="staging-pages-users[]" value="'.$jlAuthor->ID.'" checked="checked" /> <label for="staging-pages-user-'.$jlAuthor->ID.'" />'.$jlAuthor->display_name.'</label><br />';
+			} else {
+				echo '<input class="jl-staging-checkbox" type="checkbox" id="staging-pages-user-'.$jlAuthor->ID.'" name="staging-pages-users[]" value="'.$jlAuthor->ID.'" /> <label for="staging-pages-user-'.$jlAuthor->ID.'" />'.$jlAuthor->display_name.'</label><br />';
+			}
+
+		} else {
+			echo '<input class="jl-staging-checkbox" type="checkbox" id="staging-pages-user-'.$jlAuthor->ID.'" name="staging-pages-users[]" value="'.$jlAuthor->ID.'" /> <label for="staging-pages-user-'.$jlAuthor->ID.'" />'.$jlAuthor->display_name.'</label><br />';
+		}
+
+	}
+}
+
+function jl_staging_pages_save_meta_box_values ( $post_id ){
+
+	if ( ! isset($_POST['jl_staging_pages_user_box_render_nonce']) ){
+		wp_die('Something happened and WordPress cannot find your nonce. Nice try.');
+	} else {
+		$jlSaveMetaBoxNonce = $_POST['jl_staging_pages_user_box_render_nonce'];
+	}
+
+	if ( ! wp_verify_nonce( $jlSaveMetaBoxNonce, 'jl_staging_pages_user_box_render' ) ){
+		wp_die('Something happened and WordPress cannot verify your nonce. Nice try.');
+	} else {
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ){
+			return $post_id;
+		} else {
+
+			if ( ('staging-page' == $_POST['post_type']) || ('staging-post' == $_POST['post_type']) ){
+
+				if ( ! current_user_can( 'edit_page', $post_id ) ){
+					wp_die('<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>');
+				} else {
+
+					if ( $_POST['staging-pages-users'] ){
+						function jl_test_array_for_numeric ($in) {
+							return is_numeric($in);
+						}
+
+						$isValidNumeric = array_filter( $_POST['staging-pages-users'], 'jl_test_array_for_numeric' );
+
+						if ( $isValidNumeric ){
+							update_post_meta( $post_id, 'jl_staging_pages_allowed_users', $_POST['staging-pages-users'] );
+						}
+					} else {
+						update_post_meta( $post_id, 'jl_staging_pages_allowed_users', '' );
+					}
+
+				}
+
+			} else {
+				return $post_id;
+			}
+
+		}
+
+	}
+
+}
+
+add_action( 'save_post', 'jl_staging_pages_save_meta_box_values' );
 
 ?>
