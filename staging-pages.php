@@ -443,7 +443,6 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 	if ( get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true ) ) {
 		$jlStagingGetSavedUsers = get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true );
-		var_dump($jlStagingGetSavedUsers);
 	}
 	
 	$jlGetAllUsers = new WP_User_Query( array( 'exclude' => $current_user->ID ) );
@@ -521,21 +520,9 @@ add_action( 'save_post', 'jl_staging_pages_save_meta_box_values' );
 ** Lets hide staging items from users that do not have permission to view / edit
 */
 
-function jl_staging_pages_hide_items_from_unauthorized ( $query ) {
-	global $pagenow, $post_type;
-
-	$current_user = wp_get_current_user();
-
-	if ( ( "edit.php" == $pagenow ) && ( "staging-page" == $post_type || "staging-post" == $post_type ) ){
-
-		//$query->query_vars['post__not_in'] = array('');
-	}
-}
-
-add_action( 'parse_query', 'jl_staging_pages_hide_items_from_unauthorized' );
-
 function jl_staging_pages_get_items_to_hide () {
 	global $pagenow, $post_type;
+	global $jlUserAccess;
 
 	if ( ! $post_type ){
 		if ( ! empty($_GET['post_type']) ){
@@ -558,19 +545,44 @@ function jl_staging_pages_get_items_to_hide () {
                 'posts_per_page' => -1
 			);
 		$jlStagingPagesHideItemsQuery = new WP_Query( $jlHideItemsArgs );
-
 		if ( $jlStagingPagesHideItemsQuery->have_posts() ){
+			$jlUserAccess = [];
 			while ( $jlStagingPagesHideItemsQuery->have_posts() ){
 				$jlStagingPagesHideItemsQuery->the_post();
-				the_title();
-				echo '<br /><br />';
+
+				$jlCheckThePostMeta = get_post_meta( get_the_ID(), 'jl_staging_pages_allowed_users', true );
+				if ( $jlCheckThePostMeta ){
+					$jlCheckCurrentUserStatus = in_array( $current_user->ID,  $jlCheckThePostMeta);
+					if ( $jlCheckCurrentUserStatus ){
+						$jlUserAccess[] = get_the_ID();
+					}
+				}
+
 			}
 		}
 		wp_reset_query();
 	}
 
+	function jl_staging_pages_hide_items_from_unauthorized ( $query ) {
+		global $pagenow, $post_type;
+
+		if ( ( "edit.php" == $pagenow ) && ( "staging-page" == $post_type || "staging-post" == $post_type ) ){
+			global $jlUserAccess;
+			if ( $jlUserAccess ){
+				var_dump($jlUserAccess);
+				$query->query_vars['post__in'] = $jlUserAccess;
+			} else {
+				//$query->query_vars['post__in'] = array('0');
+			}
+		}
+	}
+
+	add_action( 'parse_query', 'jl_staging_pages_hide_items_from_unauthorized' );
+
 }
 
 add_action( 'admin_init', 'jl_staging_pages_get_items_to_hide' );
+
+
 
 ?>
