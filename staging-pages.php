@@ -35,9 +35,9 @@ function jl_staging_pages_register_staging_post_types(){
 	$post_args = array(
 		'labels' => $post_labels,
 		'description' => 'A staging place for posts',
-		'public' => false,
+		'public' => true,
 		'exclude_from_search' => true,
-		'publicly_queryable' => false,
+		'publicly_queryable' => true,
 		'show_ui' => true,
 		'show_in_nav_menus' => false,
 		'show_in_menu' => true,
@@ -72,9 +72,9 @@ function jl_staging_pages_register_staging_post_types(){
 	$page_args = array(
 		'labels' => $page_labels,
 		'description' => 'A staging place for pages',
-		'public' => false,
+		'public' => true,
 		'exclude_from_search' => true,
-		'publicly_queryable' => false,
+		'publicly_queryable' => true,
 		'show_ui' => true,
 		'show_in_nav_menus' => false,
 		'show_in_menu' => true,
@@ -122,8 +122,6 @@ function jl_staging_pages_add_row_action( $actions, $page_object ){
 	$jl_the_post_type = get_post_type();
 	if ( "post" == $jl_the_post_type || "page" == $jl_the_post_type ){
 
-		//var_dump($page_object);
-
 		$jlCheckForStagedArgs = array(
 			'meta_key' => 'jl-staged-'.$jl_the_post_type.'-original',
 			'meta_value' => $page_object->ID,
@@ -136,12 +134,18 @@ function jl_staging_pages_add_row_action( $actions, $page_object ){
 		if ( $jlCheckForStagedQuery->have_posts() ){
 			while ( $jlCheckForStagedQuery->have_posts() ){
 				$jlCheckForStagedQuery->the_post();
-	    		$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged').'</a>';
+				$jlGetTheStagedID = get_the_ID();
 		    }
+		}
+
+		if ( ! empty($jlGetTheStagedID) ){
+			$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged').'</a>';
 		} else {
 			$myNonce = wp_create_nonce('wp-staging-nonce');
 	    	$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged').'</a>';
 		}
+
+		wp_reset_query();
 
 	}
 	return $actions;
@@ -161,6 +165,7 @@ add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action', 100, 2 );
 function jl_staging_pages_add_row_action_deploy( $actions, $page_object ){
 	global $pagenow;
 	$jl_the_post_type = get_post_type();
+
 	if ( ( "edit.php" == $pagenow ) && ( "staging-post" == $jl_the_post_type || "staging-page" == $jl_the_post_type ) ){
 		$myNonce = wp_create_nonce('jl-staging-pages-deploy-nonce');
 		$actions['deploy_object'] = '<a href="'.get_admin_url().'options.php?deploy-item-id='.$page_object->ID.'&type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Deploy').'</a>';
@@ -168,8 +173,8 @@ function jl_staging_pages_add_row_action_deploy( $actions, $page_object ){
 	return $actions;
 }
 
-add_filter( 'page_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2, 100 );
-add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2, 100 );
+add_filter( 'page_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2 );
+add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2 );
 
 
 
