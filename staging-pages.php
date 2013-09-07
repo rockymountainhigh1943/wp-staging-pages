@@ -443,6 +443,7 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 	if ( get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true ) ) {
 		$jlStagingGetSavedUsers = get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true );
+		var_dump($jlStagingGetSavedUsers);
 	}
 	
 	$jlGetAllUsers = new WP_User_Query( array( 'exclude' => $current_user->ID ) );
@@ -467,52 +468,109 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 function jl_staging_pages_save_meta_box_values ( $post_id ){
 
-	if ( ! isset($_POST['jl_staging_pages_user_box_render_nonce']) ){
-		wp_die('Something happened and WordPress cannot find your nonce. Nice try.');
-	} else {
-		$jlSaveMetaBoxNonce = $_POST['jl_staging_pages_user_box_render_nonce'];
-	}
+	if ( ('staging-page' == $_POST['post_type']) || ('staging-post' == $_POST['post_type']) ){
 
-	if ( ! wp_verify_nonce( $jlSaveMetaBoxNonce, 'jl_staging_pages_user_box_render' ) ){
-		wp_die('Something happened and WordPress cannot verify your nonce. Nice try.');
-	} else {
+		if ( ! isset($_POST['jl_staging_pages_user_box_render_nonce']) ){
+			wp_die('Something happened and WordPress cannot find your nonce. Nice try.');
+		} else {
+			$jlSaveMetaBoxNonce = $_POST['jl_staging_pages_user_box_render_nonce'];
+		}
 
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ){
-			return $post_id;
+		if ( ! wp_verify_nonce( $jlSaveMetaBoxNonce, 'jl_staging_pages_user_box_render' ) ){
+			wp_die('Something happened and WordPress cannot verify your nonce. Nice try.');
 		} else {
 
-			if ( ('staging-page' == $_POST['post_type']) || ('staging-post' == $_POST['post_type']) ){
+			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ){
+				return $post_id;
+			} else {
 
-				if ( ! current_user_can( 'edit_page', $post_id ) ){
-					wp_die('<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>');
-				} else {
-
-					if ( $_POST['staging-pages-users'] ){
-						function jl_test_array_for_numeric ($in) {
-							return is_numeric($in);
-						}
-
-						$isValidNumeric = array_filter( $_POST['staging-pages-users'], 'jl_test_array_for_numeric' );
-
-						if ( $isValidNumeric ){
-							update_post_meta( $post_id, 'jl_staging_pages_allowed_users', $_POST['staging-pages-users'] );
-						}
+					if ( ! current_user_can( 'edit_page', $post_id ) ){
+						wp_die('<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>');
 					} else {
-						update_post_meta( $post_id, 'jl_staging_pages_allowed_users', '' );
+
+						if ( $_POST['staging-pages-users'] ){
+							function jl_test_array_for_numeric ($in) {
+								return is_numeric($in);
+							}
+
+							$isValidNumeric = array_filter( $_POST['staging-pages-users'], 'jl_test_array_for_numeric' );
+
+							if ( $isValidNumeric ){
+								update_post_meta( $post_id, 'jl_staging_pages_allowed_users', $_POST['staging-pages-users'] );
+							}
+						} else {
+							delete_post_meta( $post_id, 'jl_staging_pages_allowed_users' );
+						}
+
 					}
 
-				}
-
-			} else {
-				return $post_id;
 			}
 
 		}
 
 	}
-
 }
 
 add_action( 'save_post', 'jl_staging_pages_save_meta_box_values' );
+
+
+
+
+
+/*
+** Lets hide staging items from users that do not have permission to view / edit
+*/
+
+function jl_staging_pages_hide_items_from_unauthorized ( $query ) {
+	global $pagenow, $post_type;
+
+	$current_user = wp_get_current_user();
+
+	if ( ( "edit.php" == $pagenow ) && ( "staging-page" == $post_type || "staging-post" == $post_type ) ){
+
+		//$query->query_vars['post__not_in'] = array('');
+	}
+}
+
+add_action( 'parse_query', 'jl_staging_pages_hide_items_from_unauthorized' );
+
+function jl_staging_pages_get_items_to_hide () {
+	global $pagenow, $post_type;
+
+	if ( ! $post_type ){
+		if ( ! empty($_GET['post_type']) ){
+			$post_type = esc_html($_GET['post_type']);
+		}
+	}
+
+	if ( ( "edit.php" == $pagenow ) && ( "staging-page" == $post_type || "staging-post" == $post_type ) ){
+		$current_user = wp_get_current_user();
+		$jlHideItemsArgs = array(
+				'post_type' => $post_type,
+				'meta_key' => 'jl_staging_pages_allowed_users',
+				'orderby' => 'meta_value',
+        		'order' => 'ASC',
+				'meta_query' => array(
+					array(
+						'key' => 'jl_staging_pages_allowed_users'
+					)
+				),
+                'posts_per_page' => -1
+			);
+		$jlStagingPagesHideItemsQuery = new WP_Query( $jlHideItemsArgs );
+
+		if ( $jlStagingPagesHideItemsQuery->have_posts() ){
+			while ( $jlStagingPagesHideItemsQuery->have_posts() ){
+				$jlStagingPagesHideItemsQuery->the_post();
+				the_title();
+				echo '<br /><br />';
+			}
+		}
+		wp_reset_query();
+	}
+
+}
+
+add_action( 'admin_init', 'jl_staging_pages_get_items_to_hide' );
 
 ?>
