@@ -443,6 +443,7 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 	if ( get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true ) ) {
 		$jlStagingGetSavedUsers = get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true );
+		var_dump($jlStagingGetSavedUsers);
 	}
 	
 	$jlGetAllUsers = new WP_User_Query( array( 'exclude' => $current_user->ID ) );
@@ -451,6 +452,7 @@ function jl_staging_pages_user_box_render ( $post ) {
 	foreach ( $jlAuthors as $jlAuthor ){
 
 		if ( isset($jlStagingGetSavedUsers) ){
+			// We have saved items
 			$jlUserIsInArray = in_array( $jlAuthor->ID, $jlStagingGetSavedUsers );
 			if ( $jlUserIsInArray ){
 				echo '<input class="jl-staging-checkbox" type="checkbox" id="staging-pages-user-'.$jlAuthor->ID.'" name="staging-pages-users[]" value="'.$jlAuthor->ID.'" checked="checked" /> <label for="staging-pages-user-'.$jlAuthor->ID.'" />'.$jlAuthor->display_name.'</label><br />';
@@ -459,6 +461,7 @@ function jl_staging_pages_user_box_render ( $post ) {
 			}
 
 		} else {
+			// No saved items
 			echo '<input class="jl-staging-checkbox" type="checkbox" id="staging-pages-user-'.$jlAuthor->ID.'" name="staging-pages-users[]" value="'.$jlAuthor->ID.'" /> <label for="staging-pages-user-'.$jlAuthor->ID.'" />'.$jlAuthor->display_name.'</label><br />';
 		}
 
@@ -534,14 +537,6 @@ function jl_staging_pages_get_items_to_hide () {
 		$current_user = wp_get_current_user();
 		$jlHideItemsArgs = array(
 				'post_type' => $post_type,
-				'meta_key' => 'jl_staging_pages_allowed_users',
-				'orderby' => 'meta_value',
-        		'order' => 'ASC',
-				'meta_query' => array(
-					array(
-						'key' => 'jl_staging_pages_allowed_users'
-					)
-				),
                 'posts_per_page' => -1
 			);
 		$jlStagingPagesHideItemsQuery = new WP_Query( $jlHideItemsArgs );
@@ -550,12 +545,18 @@ function jl_staging_pages_get_items_to_hide () {
 			while ( $jlStagingPagesHideItemsQuery->have_posts() ){
 				$jlStagingPagesHideItemsQuery->the_post();
 
+				$jlStagingPagesAuthorID = get_the_author_meta('ID');
+
 				$jlCheckThePostMeta = get_post_meta( get_the_ID(), 'jl_staging_pages_allowed_users', true );
+				
 				if ( $jlCheckThePostMeta ){
+					// we have post meta
 					$jlCheckCurrentUserStatus = in_array( $current_user->ID,  $jlCheckThePostMeta);
-					if ( $jlCheckCurrentUserStatus ){
+					if ( $jlCheckCurrentUserStatus || $current_user->ID == $jlStagingPagesAuthorID ){
 						$jlUserAccess[] = get_the_ID();
 					}
+				} elseif ( $current_user->ID == $jlStagingPagesAuthorID ) {
+					$jlUserAccess[] = get_the_ID();
 				}
 
 			}
@@ -572,7 +573,7 @@ function jl_staging_pages_get_items_to_hide () {
 				var_dump($jlUserAccess);
 				$query->query_vars['post__in'] = $jlUserAccess;
 			} else {
-				//$query->query_vars['post__in'] = array('0');
+				$query->query_vars['post__in'] = array('0');
 			}
 		}
 	}
