@@ -447,11 +447,13 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 	if ( $post->post_author == $current_user->ID ){
 		$jlStagingUserQueryArgs = array( 'exclude' => $current_user->ID );
-		//var_dump($jlStagingUserQueryArgs);
+		$jlStagingAuthorName = 'You';
 	} else {
 		$jlStagingUserQueryArgs = array( 'exclude' => $current_user->ID .', '.$post->post_author );
-		//var_dump($jlStagingUserQueryArgs);
+		$jlStagingAuthorName = get_the_author_meta('display_name', $post->post_author);
 	}
+
+	echo '<strong>Owner:</strong> '.$jlStagingAuthorName.'<br />';
 	
 	$jlGetAllUsers = new WP_User_Query( $jlStagingUserQueryArgs );
 	$jlAuthors = $jlGetAllUsers->get_results();
@@ -577,7 +579,6 @@ function jl_staging_pages_get_items_to_hide () {
 		if ( ( "edit.php" == $pagenow ) && ( "staging-page" == $post_type || "staging-post" == $post_type ) ){
 			global $jlUserAccess;
 			if ( $jlUserAccess ){
-				var_dump($jlUserAccess);
 				$query->query_vars['post__in'] = $jlUserAccess;
 			} else {
 				$query->query_vars['post__in'] = array('0');
