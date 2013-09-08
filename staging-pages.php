@@ -443,10 +443,17 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 	if ( get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true ) ) {
 		$jlStagingGetSavedUsers = get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true );
-		var_dump($jlStagingGetSavedUsers);
+	}
+
+	if ( $post->post_author == $current_user->ID ){
+		$jlStagingUserQueryArgs = array( 'exclude' => $current_user->ID );
+		//var_dump($jlStagingUserQueryArgs);
+	} else {
+		$jlStagingUserQueryArgs = array( 'exclude' => $current_user->ID .', '.$post->post_author );
+		//var_dump($jlStagingUserQueryArgs);
 	}
 	
-	$jlGetAllUsers = new WP_User_Query( array( 'exclude' => $current_user->ID ) );
+	$jlGetAllUsers = new WP_User_Query( $jlStagingUserQueryArgs );
 	$jlAuthors = $jlGetAllUsers->get_results();
 	
 	foreach ( $jlAuthors as $jlAuthor ){
