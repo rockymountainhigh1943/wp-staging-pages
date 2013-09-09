@@ -46,7 +46,7 @@ When the page is finally ready to be deployed, simply click the **green "Deploy"
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. See FAQ for more information about "Staging" a page
 
-## Frequently Asked Questions ==
+## Frequently Asked Questions
 **How do I setup a page for staging?**
 
 1. Navigate to the post or page listing.
@@ -107,10 +107,10 @@ Since Staging Pages is built using all WordPress native APIs and methods - when 
 
 ##Screenshots
 
-1. [The Post/Page action rows add a "Status" section to show the staging status](../blob/master/screenshot-1.png)
-2. Editing a staged item shows the Viewers / Editors meta box
-3. The Staging item listing screen, shows the action rows for deploying the staged item
-4. After updating the staged item the deploy button becomes available
+1. [The Post/Page action rows add a "Status" section to show the staging status](../master/screenshot-1.png)
+2. [Editing a staged item shows the Viewers / Editors meta box](../master/screenshot-2.png)
+3. [The Staging item listing screen, shows the action rows for deploying the staged item](../master/screenshot-3.png)
+4. [After updating the staged item the deploy button becomes available](../master/screenshot-4.png)
 
 ## Changelog
 ** 1.0 **
