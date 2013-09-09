@@ -141,7 +141,7 @@ function jl_staging_pages_add_row_action ( $actions, $page_object ) {
 					$jlStagingGetSavedUsers = get_post_meta( get_the_ID(), 'jl_staging_pages_allowed_users', true );
 				}
 
-				if ( $jlCheckForStagedQuery->posts[0]->post_author == $current_user->ID || ( isset($jlStagingGetSavedUsers) && in_array( $current_user->ID, $jlStagingGetSavedUsers ) ) ){
+				if ( $jlCheckForStagedQuery->posts[0]->post_author == $current_user->ID || ( isset( $jlStagingGetSavedUsers ) && in_array( $current_user->ID, $jlStagingGetSavedUsers ) ) ){
 					$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged').'</a>';
 				} else {
 	    			$actions['staging_object'] = __('Status').': '.__('Private');	
@@ -363,7 +363,6 @@ function jl_staging_pages_deploy_item () {
 								if ( is_numeric($createStagedItem) ){
 
 									wp_delete_post( $deployID, true );
-
 									wp_safe_redirect( get_admin_url() . 'post.php?post=' . $stagingParentID . '&action=edit' );
 								}
 
@@ -406,14 +405,6 @@ function jl_staging_pages_add_admin_css () {
 			'1.0.0'
 		);
 		wp_enqueue_style( 'jl-wp-staging-pages-stylesheet' );
-		/*
-		wp_enqueue_script(
-			'jl-wp-staging-pages-js',
-			plugins_url( 'wp-staging-pages/staging-pages.js' ),
-			array('jquery'),
-			'1.0.0'
-		);
-		*/
 	}
 }
 
@@ -453,6 +444,11 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 	if ( get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true ) ) {
 		$jlStagingGetSavedUsers = get_post_meta( $post->ID, 'jl_staging_pages_allowed_users', true );
+		function jl_test_array_for_numeric ($in) {
+			return is_numeric($in);
+		}
+
+		$isValidNumeric = array_filter( $jlStagingGetSavedUsers, 'jl_test_array_for_numeric' );
 	}
 
 	if ( $post->post_author == $current_user->ID ){
@@ -470,7 +466,7 @@ function jl_staging_pages_user_box_render ( $post ) {
 	
 	foreach ( $jlAuthors as $jlAuthor ){
 
-		if ( isset($jlStagingGetSavedUsers) ){
+		if ( isset($jlStagingGetSavedUsers) && $isValidNumeric ){
 			// We have saved items
 			$jlUserIsInArray = in_array( $jlAuthor->ID, $jlStagingGetSavedUsers );
 			if ( $jlUserIsInArray ){
@@ -601,7 +597,4 @@ function jl_staging_pages_get_items_to_hide () {
 }
 
 add_action( 'admin_init', 'jl_staging_pages_get_items_to_hide' );
-
-
-
 ?>
