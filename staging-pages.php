@@ -134,19 +134,27 @@ function jl_staging_pages_add_row_action ( $actions, $page_object ) {
 		if ( $jlCheckForStagedQuery->have_posts() ){
 			while ( $jlCheckForStagedQuery->have_posts() ){
 				$jlCheckForStagedQuery->the_post();
-				$jlGetTheStagedID = get_the_ID();
-		    }
-		}
 
-		if ( ! empty($jlGetTheStagedID) ){
-			$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged').'</a>';
+				$current_user = wp_get_current_user();
+
+				if ( get_post_meta( get_the_ID(), 'jl_staging_pages_allowed_users', true ) ) {
+					$jlStagingGetSavedUsers = get_post_meta( get_the_ID(), 'jl_staging_pages_allowed_users', true );
+				}
+
+				if ( $jlCheckForStagedQuery->posts[0]->post_author == $current_user->ID || ( isset($jlStagingGetSavedUsers) && in_array( $current_user->ID, $jlStagingGetSavedUsers ) ) ){
+					$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged').'</a>';
+				} else {
+	    			$actions['staging_object'] = __('Status').': '.__('Private');	
+				}
+
+		    }
 		} else {
 			$myNonce = wp_create_nonce('wp-staging-nonce');
-	    	$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged').'</a>';
+	    	$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged').'</a>';	
 		}
 
-		wp_reset_query();
-
+		wp_reset_query();	
+		
 	}
 	return $actions;
 }
