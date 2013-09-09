@@ -1,6 +1,3 @@
-wp-staging-pages
-================
-
 === Staging Pages ===
 Author: Jake Love
 Contributors: rockymountainhigh1943
