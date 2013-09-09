@@ -2,14 +2,23 @@ Staging Page
 ================
 
 Author: Jake Love
+
 Contributors: rockymountainhigh1943
+
 Donate link: http://jakelovedev.com/donate
+
 Tags: WordPress, Editor, Workflow, Staging
+
 Requires at least: 3.1
+
 Tested up to: 3.6
+
 Stable tag: 1.0
+
 Version: 1.0
+
 License: GPLv2
+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Adds the ability for users to setup "staging" versions of posts and pages. When ready, approved users can easily deploy.
@@ -45,7 +54,7 @@ When the page is finally ready to be deployed, simply click the **green "Deploy"
 1. See FAQ for more information about "Staging" a page
 
 ## Frequently Asked Questions ==
-= How do I setup a page for staging? =
+**How do I setup a page for staging?**
 
 1. Navigate to the post or page listing.
 1. Hover your mouse over the desired page/post item, click the "Not Staged" link.
@@ -55,7 +64,7 @@ When the page is finally ready to be deployed, simply click the **green "Deploy"
 1. When the page is finally ready to be deployed, simply click the **green "Deploy" button** and the new "staging" content **will overwrite the original**. 
 
 
-= What types of content can be staged? =
+**What types of content can be staged?**
 
 * Page Title
 * Editor Content
@@ -63,7 +72,7 @@ When the page is finally ready to be deployed, simply click the **green "Deploy"
 (More features coming soon!)
 
 
-= Which post types are currently supported? =
+**Which post types are currently supported?**
 
 * Posts
 * Pages
@@ -71,17 +80,17 @@ When the page is finally ready to be deployed, simply click the **green "Deploy"
 (Custom post types coming soon!)
 
 
-= Where do I get support? =
+**Where do I get support?**
 
 All support requests will be answered within the support forum.
 
 
-= Where are my pages staged? =
+**Where are my pages staged?**
 
 Your pages are staged within the Staging admin area. This is essentially a custom post type that stores the data for you until you're ready to deploy your changes.
 
 
-= How do I know the page is staged? =
+**How do I know the page is staged?**
 
 There are two ways to know your content is staged:
 
@@ -89,31 +98,31 @@ There are two ways to know your content is staged:
 1. Click the "Staged Posts" or "Staged Pages" tabs. Any staged content you have permission to view/edit will be listed here.
 
 
-= Why can't I see staged content? =
+**Why can't I see staged content?**
 
 If you cannot locate the staged content and you are not the originating user to create the staged item, you do not have access. You will need to request access.
 
 
-= Who can deploy the staged item? =
+**Who can deploy the staged item?**
 
 Anyone who has access to View/Edit the staged item also has access to deploy. Be careful since this action will overwrite the original content.
 
 
-= How does Staging Pages handle revisions? =
+**How does Staging Pages handle revisions?**
 
 Since Staging Pages is built using all WordPress native APIs and methods - when a staged item is deployed - the content will overwrite the original, but this change is stored in the revisions system. This allows users the ability to easily revert should an issue arise.
 
-== Screenshots ==
+##Screenshots
 
-1. The Post/Page action rows add a "Status" section to show the staging status
+1. [The Post/Page action rows add a "Status" section to show the staging status](../blob/master/screenshot-1.png)
 2. Editing a staged item shows the Viewers / Editors meta box
 3. The Staging item listing screen, shows the action rows for deploying the staged item
 4. After updating the staged item the deploy button becomes available
 
-== Changelog ==
-= 1.0 =
+## Changelog
+** 1.0 **
 Initial release
 
-== Upgrade Notice ==
-= 1.0 =
+## Upgrade Notice
+** 1.0 **
 Initial release
