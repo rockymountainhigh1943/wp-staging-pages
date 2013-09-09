@@ -1,7 +1,6 @@
-wp-staging-pages
+Staging Page
 ================
 
-=== Staging Pages ===
 Author: Jake Love
 Contributors: rockymountainhigh1943
 Donate link: http://jakelovedev.com/donate
@@ -15,7 +14,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Adds the ability for users to setup "staging" versions of posts and pages. When ready, approved users can easily deploy.
 
-== Description ==
+## Description
 
 Staging Pages adds the ability for users to setup "staging" versions of desired posts and pages. Once a page has been setup for "Staging", the user whom initiates the staging process has control over which users get access to view and edit. The user whom initiates the staging will always have ownership.
 
@@ -40,12 +39,12 @@ When the page is finally ready to be deployed, simply click the **green "Deploy"
 * Posts
 * Pages
 
-== Installation ==
+## Installation
 1. Upload plugin files to the `/wp-content/plugins/` directory, or install using WordPress' built-in Plugin installer
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. See FAQ for more information about "Staging" a page
 
-== Frequently Asked Questions ==
+## Frequently Asked Questions ==
 = How do I setup a page for staging? =
 
 1. Navigate to the post or page listing.
