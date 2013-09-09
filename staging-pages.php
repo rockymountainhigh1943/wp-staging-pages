@@ -17,24 +17,24 @@ Licence: GPL2
 function jl_staging_pages_register_staging_post_types () {
 
 	$post_labels = array(
-		'name' => 'Staging Posts',
-		'singular_name' => 'Staged Post',
-		'add_new' => 'Add New',
-		'add_new_item' => 'Add New Staged Post',
-		'edit_item' => 'Edit Staged Post',
-		'new_item' => 'New Staged Post',
-		'all_items' => 'All Staged Posts',
-		'view_item' => 'View Staged Post',
-		'search_item' => 'Search Staged Posts',
-		'not_found' => 'No staged posts found.',
-		'not_found_in_trash' => 'No staged posts found in Trash.',
+		'name' => __( 'Staging Posts', 'jl-staging-pages' ),
+		'singular_name' => __( 'Staged Post', 'jl-staging-pages' ),
+		'add_new' => __( 'Add New', 'jl-staging-pages' ),
+		'add_new_item' => __( 'Add New Staged Post', 'jl-staging-pages' ),
+		'edit_item' => __( 'Edit Staged Post', 'jl-staging-pages' ),
+		'new_item' => __( 'New Staged Post', 'jl-staging-pages' ),
+		'all_items' => __( 'All Staged Posts', 'jl-staging-pages' ),
+		'view_item' => __( 'View Staged Post', 'jl-staging-pages' ),
+		'search_item' => __( 'Search Staged Posts', 'jl-staging-pages' ),
+		'not_found' => __( 'No staged posts found.', 'jl-staging-pages' ),
+		'not_found_in_trash' => __( 'No staged posts found in Trash.', 'jl-staging-pages' ),
 		'parent_item_colon' => NULL,
-		'menu_name' => 'Staged Posts'
+		'menu_name' => __( 'Staged Posts', 'jl-staging-pages' )
 	);
 
 	$post_args = array(
 		'labels' => $post_labels,
-		'description' => 'A staging place for posts',
+		'description' => __( 'A staging place for posts', 'jl-staging-pages' ),
 		'public' => true,
 		'exclude_from_search' => true,
 		'publicly_queryable' => true,
@@ -54,24 +54,24 @@ function jl_staging_pages_register_staging_post_types () {
 	register_post_type( 'staging-post', $post_args );
 
 	$page_labels = array(
-		'name' => 'Staging Pages',
-		'singular_name' => 'Staged Page',
-		'add_new' => 'Add New',
-		'add_new_item' => 'Add New Staged Page',
-		'edit_item' => 'Edit Staged Page',
-		'new_item' => 'New Staged Page',
-		'all_items' => 'All Staged Pages',
-		'view_item' => 'View Staged Page',
-		'search_item' => 'Search Staged Pages',
-		'not_found' => 'No staged pages found.',
-		'not_found_in_trash' => 'No staged pages found in Trash.',
+		'name' => __( 'Staging Pages', 'jl-staging-pages' ),
+		'singular_name' => __( 'Staged Page', 'jl-staging-pages' ),
+		'add_new' => __( 'Add New', 'jl-staging-pages' ),
+		'add_new_item' => __( 'Add New Staged Page', 'jl-staging-pages' ),
+		'edit_item' => __( 'Edit Staged Page', 'jl-staging-pages' ),
+		'new_item' => __( 'New Staged Page', 'jl-staging-pages' ),
+		'all_items' => __( 'All Staged Pages', 'jl-staging-pages' ),
+		'view_item' => __( 'View Staged Page', 'jl-staging-pages' ),
+		'search_item' => __( 'Search Staged Pages', 'jl-staging-pages' ),
+		'not_found' => __( 'No staged pages found.', 'jl-staging-pages' ),
+		'not_found_in_trash' => __( 'No staged pages found in Trash.', 'jl-staging-pages' ),
 		'parent_item_colon' => NULL,
-		'menu_name' => 'Staged Pages'
+		'menu_name' => __( 'Staged Pages', 'jl-staging-pages' )
 	);
 
 	$page_args = array(
 		'labels' => $page_labels,
-		'description' => 'A staging place for pages',
+		'description' => __( 'A staging place for pages', 'jl-staging-pages' ),
 		'public' => true,
 		'exclude_from_search' => true,
 		'publicly_queryable' => true,
@@ -142,15 +142,15 @@ function jl_staging_pages_add_row_action ( $actions, $page_object ) {
 				}
 
 				if ( $jlCheckForStagedQuery->posts[0]->post_author == $current_user->ID || ( isset( $jlStagingGetSavedUsers ) && in_array( $current_user->ID, $jlStagingGetSavedUsers ) ) ){
-					$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged').'</a>';
+					$actions['staging_object'] = __('Status', 'jl-staging-pages').': <a href="'.get_admin_url().'post.php?post='.get_the_ID().'&action=edit" class="jl-not-staged">'.__('Staged', 'jl-staging-pages').'</a>';
 				} else {
-	    			$actions['staging_object'] = __('Status').': '.__('Private');	
+	    			$actions['staging_object'] = __('Status', 'jl-staging-pages').': '.__('Private', 'jl-staging-pages');	
 				}
 
 		    }
 		} else {
 			$myNonce = wp_create_nonce('wp-staging-nonce');
-	    	$actions['staging_object'] = __('Status').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged').'</a>';	
+	    	$actions['staging_object'] = __('Status', 'jl-staging-pages').': <a href="'.get_admin_url().'options.php?jl-mirror-post-id='.$page_object->ID.'&jl-mirror-post-type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Not Staged', 'jl-staging-pages').'</a>';	
 		}
 
 		wp_reset_query();	
@@ -176,7 +176,7 @@ function jl_staging_pages_add_row_action_deploy ( $actions, $page_object ) {
 
 	if ( ( "edit.php" == $pagenow ) && ( "staging-post" == $jl_the_post_type || "staging-page" == $jl_the_post_type ) ){
 		$myNonce = wp_create_nonce('jl-staging-pages-deploy-nonce');
-		$actions['deploy_object'] = '<a href="'.get_admin_url().'options.php?deploy-item-id='.$page_object->ID.'&type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Deploy').'</a>';
+		$actions['deploy_object'] = '<a href="'.get_admin_url().'options.php?deploy-item-id='.$page_object->ID.'&type='.$page_object->post_type.'&_wpnonce='.$myNonce.'" class="jl-not-staged">'.__('Deploy', 'jl-staging-pages').'</a>';
 	}
 	return $actions;
 }
@@ -194,7 +194,7 @@ add_filter( 'post_row_actions', 'jl_staging_pages_add_row_action_deploy', 100, 2
 
 function jl_staging_pages_check_for_mirror () {
 	if( ! empty( $_GET['jl-mirror-post-id'] ) && ! empty( $_GET['jl-mirror-post-type'] ) ){
-		$jlDieMessage = '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>';
+		$jlDieMessage = __( '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>' , 'jl-staging-pages');
 		$myNonce = $_REQUEST['_wpnonce'];
 
 		if ( ! wp_verify_nonce( $myNonce, 'wp-staging-nonce' ) ){
@@ -268,7 +268,7 @@ function jl_staging_pages_check_for_mirror () {
 				}
 
 			} else {
-				echo '<script>alert("Sorry but there is no staging post type for this item."); window.location = "'.get_admin_url().'";</script>';
+				echo '<script>alert(' . __( "Sorry but there is no staging post type for this item.", 'jl-staging-pages') .' ); window.location = "'.get_admin_url().'";</script>';
 			}
 
 		}
@@ -298,8 +298,8 @@ function jl_staging_pages_add_deploy_button () {
 
 <div class="misc-pub-section curtime">
 	<input style="float: right;" type="button" value="Deploy" onclick="window.location='<?php echo get_admin_url(); ?>options.php?deploy-item-id=<?php echo $itemID; ?>&type=<?php echo $jl_the_post_type ?>&_wpnonce=<?php echo $deployNonce; ?>'" accesskey="d" id="deploy" class="button button-primary button-large" name="deploy">
-	<strong>DEPLOY</strong><br />
-	Will overwrite the original
+	<strong><?php _e( 'DEPLOY', 'jl-staging-pages' ); ?></strong><br />
+	<?php _e( 'Will overwrite the original', 'jl-staging-pages' ); ?>
 	<div class="clear"></div>
 </div>
 
@@ -321,7 +321,7 @@ add_action( 'post_submitbox_misc_actions', 'jl_staging_pages_add_deploy_button' 
 function jl_staging_pages_deploy_item () {
 	global $pagenow;
 	if ( ( 'options.php' == $pagenow || 'edit.php' == $pagenow ) && ! empty( $_GET['deploy-item-id'] ) && ! empty( $_REQUEST['_wpnonce'] ) && ! empty( $_GET['type'] ) ) {
-		$jlDieMessage = '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>';
+		$jlDieMessage = __( '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>', 'jl-staging-pages' );
 		$deployID = $_GET['deploy-item-id'];
 		$deployGetNonce = $_REQUEST['_wpnonce'];
 		$deployType = ( $_GET['type'] == 'staging-post' ? 'post' : 'page' );
@@ -426,7 +426,7 @@ function jl_staging_pages_add_user_meta_box () {
 
 		add_meta_box(
 			'jl_staging_pages_user_box',
-			__('Viewers / Editors'),
+			__( 'Viewers / Editors', 'jl-staging-pages' ),
 			'jl_staging_pages_user_box_render',
 			$es,
 			'side'
@@ -459,7 +459,7 @@ function jl_staging_pages_user_box_render ( $post ) {
 		$jlStagingAuthorName = get_the_author_meta('display_name', $post->post_author);
 	}
 
-	echo '<strong>Owner:</strong> '.$jlStagingAuthorName.'<br />';
+	echo '<strong>' . __( 'Owner', 'jl-staging-pages') . ':</strong> '.$jlStagingAuthorName.'<br />';
 	
 	$jlGetAllUsers = new WP_User_Query( $jlStagingUserQueryArgs );
 	$jlAuthors = $jlGetAllUsers->get_results();
@@ -488,13 +488,15 @@ function jl_staging_pages_save_meta_box_values ( $post_id ){
 	if ( ('staging-page' == $_POST['post_type']) || ('staging-post' == $_POST['post_type']) ){
 
 		if ( ! isset($_POST['jl_staging_pages_user_box_render_nonce']) ){
-			wp_die('Something happened and WordPress cannot find your nonce. Nice try.');
+			$jlDieNoticeRenderNonce = __( 'Something happened and WordPress cannot find your nonce. Nice try.', 'jl-staging-pages' );
+			wp_die($jlDieNoticeRenderNonce);
 		} else {
 			$jlSaveMetaBoxNonce = $_POST['jl_staging_pages_user_box_render_nonce'];
 		}
 
 		if ( ! wp_verify_nonce( $jlSaveMetaBoxNonce, 'jl_staging_pages_user_box_render' ) ){
-			wp_die('Something happened and WordPress cannot verify your nonce. Nice try.');
+			$jlDieNoticeRenderNonceNotVerify = __( 'Something happened and WordPress cannot verify your nonce. Nice try.', 'jl-staging-pages' );
+			wp_die($jlDieNoticeRenderNonceNotVerify);
 		} else {
 
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ){
@@ -502,7 +504,8 @@ function jl_staging_pages_save_meta_box_values ( $post_id ){
 			} else {
 
 					if ( ! current_user_can( 'edit_page', $post_id ) ){
-						wp_die('<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>');
+						$jlDieNoticeCantEdit = __( '<h1>You do not have permission to do this. We have your geolocation - you have 1 minute. Good luck.</h1>', 'jl-staging-pages' );
+						wp_die($jlDieNoticeCantEdit);
 					} else {
 
 						if ( $_POST['staging-pages-users'] ){
