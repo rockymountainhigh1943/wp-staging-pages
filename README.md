@@ -2,15 +2,18 @@ Staging Page
 ================
 
 Author: Jake Love
+
 Contributors: rockymountainhigh1943
-Donate link: http://jakelovedev.com/donate
+
 Tags: WordPress, Editor, Workflow, Staging
+
 Requires at least: 3.1
+
 Tested up to: 3.6
+
 Stable tag: 1.0
+
 Version: 1.0
-License: GPLv2
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 
 ## Description
