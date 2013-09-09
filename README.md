@@ -114,8 +114,8 @@ Since Staging Pages is built using all WordPress native APIs and methods - when 
 
 ## Changelog
 **1.0**
-__Initial release__
+_Initial release_
 
 ## Upgrade Notice
 **1.0**
-__-Initial release__
+_Initial release_
