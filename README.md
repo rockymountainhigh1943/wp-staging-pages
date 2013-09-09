@@ -113,9 +113,9 @@ Since Staging Pages is built using all WordPress native APIs and methods - when 
 4. [After updating the staged item the deploy button becomes available](../master/screenshot-4.png)
 
 ## Changelog
-** 1.0 **
-Initial release
+**1.0**
+__Initial release__
 
 ## Upgrade Notice
-** 1.0 **
-Initial release
+**1.0**
+__-Initial release__
