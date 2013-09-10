@@ -207,6 +207,7 @@ function jl_staging_pages_check_for_mirror () {
 				wp_die( $jlDieMessage );
 			}
 
+			
 			if ( is_numeric( $_GET['jl-mirror-post-id'] ) ){
 				$jl_mirror_post_id = $_GET['jl-mirror-post-id'];
 
@@ -226,6 +227,7 @@ function jl_staging_pages_check_for_mirror () {
 			} else {
 				wp_die( $jlDieMessage ); 
 			}
+
 			
 			// Check to see if this mirrored post type exists
 			if ( post_type_exists( 'staging-'.$jl_mirror_post_type ) ){
@@ -245,7 +247,7 @@ function jl_staging_pages_check_for_mirror () {
 						$stagedTitle = $jlNewPostQuery->posts[0]->post_title;
 						$stagedContent =  $jlNewPostQuery->posts[0]->post_content;
 
-						if ( ! empty( $stagedTitle ) && ! empty( $stagedContent ) ){
+						if ( ! empty( $stagedTitle ) || ! empty( $stagedContent ) ){
 
 							$stagedNewItem = array(
 								'post_title'    => $stagedTitle,
@@ -350,7 +352,7 @@ function jl_staging_pages_deploy_item () {
 							$stagedTitle = $jlUpdatePostQuery->posts[0]->post_title;
 							$stagedContent =  $jlUpdatePostQuery->posts[0]->post_content;
 
-							if ( ! empty( $stagedTitle ) && ! empty( $stagedContent ) ){
+							if ( ! empty( $stagedTitle ) || ! empty( $stagedContent ) ){
 
 								$stagedDeployItem = array(
 									'ID' => $stagingParentID,
@@ -485,7 +487,7 @@ function jl_staging_pages_user_box_render ( $post ) {
 
 function jl_staging_pages_save_meta_box_values ( $post_id ){
 
-	if ( ('staging-page' == $_POST['post_type']) || ('staging-post' == $_POST['post_type']) ){
+	if ( isset($_POST['post_type']) && ( ('staging-page' == $_POST['post_type']) || ('staging-post' == $_POST['post_type']) ) ){
 
 		if ( ! isset($_POST['jl_staging_pages_user_box_render_nonce']) ){
 			$jlDieNoticeRenderNonce = __( 'Something happened and WordPress cannot find your nonce. Nice try.', 'jl-staging-pages' );
@@ -559,7 +561,7 @@ function jl_staging_pages_get_items_to_hide () {
 			);
 		$jlStagingPagesHideItemsQuery = new WP_Query( $jlHideItemsArgs );
 		if ( $jlStagingPagesHideItemsQuery->have_posts() ){
-			$jlUserAccess = [];
+			$jlUserAccess = array();
 			while ( $jlStagingPagesHideItemsQuery->have_posts() ){
 				$jlStagingPagesHideItemsQuery->the_post();
 
@@ -571,10 +573,12 @@ function jl_staging_pages_get_items_to_hide () {
 					// we have post meta
 					$jlCheckCurrentUserStatus = in_array( $current_user->ID,  $jlCheckThePostMeta);
 					if ( $jlCheckCurrentUserStatus || $current_user->ID == $jlStagingPagesAuthorID ){
-						$jlUserAccess[] = get_the_ID();
+						//$jlUserAccess[] = get_the_ID();
+						array_push($jlUserAccess, get_the_ID());
 					}
 				} elseif ( $current_user->ID == $jlStagingPagesAuthorID ) {
-					$jlUserAccess[] = get_the_ID();
+					//$jlUserAccess[] = get_the_ID();
+					array_push($jlUserAccess, get_the_ID());
 				}
 
 			}
@@ -600,4 +604,19 @@ function jl_staging_pages_get_items_to_hide () {
 }
 
 add_action( 'admin_init', 'jl_staging_pages_get_items_to_hide' );
+
+
+
+
+
+/*
+** Add i18n support
+*/
+
+function jl_staging_pages_i18n_init() {
+ $plugin_dir = basename(dirname(__FILE__));
+ load_plugin_textdomain( 'jl-staging-pages', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
+add_action('plugins_loaded', 'jl_staging_pages_i18n_init');
+
 ?>
